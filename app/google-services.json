@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "793180841369",
+    "project_id": "readerbookapp-d73e2",
+    "storage_bucket": "readerbookapp-d73e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793180841369:android:7a4b245c73cae69a3b1f08",
+        "android_client_info": {
+          "package_name": "com.example.jetpackbookreaderapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "793180841369-9c3t5hhirnarefr2fjujqq0l7hk98kfb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXrQ9Z7O_lqhWlPIs-ptIuQJUsXwsjy18"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "793180841369-9c3t5hhirnarefr2fjujqq0l7hk98kfb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
