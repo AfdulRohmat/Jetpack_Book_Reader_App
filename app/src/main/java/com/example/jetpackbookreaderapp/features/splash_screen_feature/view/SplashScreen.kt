@@ -18,10 +18,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
 import com.example.jetpackbookreaderapp.utils.AppFonts
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavController) {
+    val auth: FirebaseAuth = Firebase.auth
 
     // DELAY FOR SEVERAL TIME THEN GO TO NEXT PAGE
     LaunchedEffect(key1 = true, block = {
@@ -31,6 +35,15 @@ fun SplashScreen(navController: NavController) {
                 inclusive = true
             }
         }
+//        if (auth.currentUser?.email.isNullOrEmpty()) navController.navigate(ReaderAppScreens.LoginScreen.name) {
+//            popUpTo(ReaderAppScreens.SplashScreen.name) {
+//                inclusive = true
+//            }
+//        } else navController.navigate(ReaderAppScreens.HomeScreen.name) {
+//            popUpTo(ReaderAppScreens.SplashScreen.name) {
+//                inclusive = true
+//            }
+//        }
     })
 
     Column(
@@ -78,17 +91,6 @@ fun SplashScreenWidget() {
         textAlign = TextAlign.Center
     )
     Spacer(modifier = Modifier.height(48.dp))
-    // BUTTON
-//        Box(
-//            modifier = Modifier
-//                .background(AppColors.mDarkBlue)
-//        ) {
-//            Text(
-//                text = "Start your journey",
-//                modifier = Modifier.padding(16.dp),
-//                color = Color.White
-//            )
-//        }
 }
 
 @Preview(showBackground = true)

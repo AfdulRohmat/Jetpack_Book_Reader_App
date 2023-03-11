@@ -1,5 +1,6 @@
 package com.example.jetpackbookreaderapp.features.login_features.view
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,19 +17,26 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.EmailInput
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.PasswordInput
+import com.example.jetpackbookreaderapp.features.auth_features.view_model.AuthViewModel
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
+import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel()
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -38,14 +46,16 @@ fun LoginScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
-            LoginWidget(navController = navController)
+            LoginWidget(navController = navController, authViewModel)
         }
     }
 
 }
 
 @Composable
-fun LoginWidget(navController: NavController) {
+fun LoginWidget(navController: NavController, authViewModel: AuthViewModel) {
+    val mContext = LocalContext.current
+
     Text(
         text = "Login",
         fontFamily = AppFonts.poppins,
@@ -59,7 +69,13 @@ fun LoginWidget(navController: NavController) {
         color = Color.Black.copy(alpha = 0.8F)
     )
     Spacer(modifier = Modifier.height(40.dp))
-    LoginSection()
+    LoginSection(isLoading = false,
+        onDone = { email, password ->
+            authViewModel.login(email, password, context = mContext, navigate = {
+                navController.navigate(ReaderAppScreens.HomeScreen.name)
+            })
+
+        })
     Spacer(modifier = Modifier.height(16.dp))
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -134,17 +150,24 @@ fun LoginSection(
         )
         Spacer(modifier = Modifier.height(32.dp))
         Button(
-            onClick = {},
+            onClick = {
+                onDone(email.value.trim(), password.value.trim())
+                keyboardController?.hide()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.Black,
+                backgroundColor = AppColors.mDarkBlue,
                 contentColor = Color.White
             ),
             shape = RoundedCornerShape(10.dp),
+            enabled = !isLoading && isValidEmailOrPassword
         ) {
-            Text(
+            if (isLoading) CircularProgressIndicator(
+                color = Color.White,
+                modifier = Modifier.size(16.dp)
+            ) else Text(
                 text = "Login",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,

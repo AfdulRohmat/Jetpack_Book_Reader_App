@@ -1,5 +1,6 @@
 package com.example.jetpackbookreaderapp.features.register_features.view
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,20 +17,24 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.EmailInput
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.PasswordInput
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.UsernameInput
+import com.example.jetpackbookreaderapp.features.auth_features.view_model.AuthViewModel
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
+import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
 
 @Composable
-fun RegisterScreen(navController: NavController) {
+fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -39,13 +44,15 @@ fun RegisterScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
-            RegisterWidget(navController = navController)
+            RegisterWidget(navController = navController, authViewModel)
         }
     }
 }
 
 @Composable
-fun RegisterWidget(navController: NavController) {
+fun RegisterWidget(navController: NavController, authViewModel: AuthViewModel) {
+    val mContext = LocalContext.current
+
     // TITLE
     Text(
         text = "Create Account",
@@ -64,7 +71,14 @@ fun RegisterWidget(navController: NavController) {
     Spacer(modifier = Modifier.height(40.dp))
 
     // REGISTER FORM
-    RegisterForm()
+    RegisterForm(
+        isLoading = false,
+        onDone = { email, password ->
+            authViewModel.register(email, password, context = mContext, navigate = {
+                navController.navigate(ReaderAppScreens.HomeScreen.name)
+            })
+        }
+    )
 
     // LOGIN NAVIGATE
     Row(
@@ -80,7 +94,7 @@ fun RegisterWidget(navController: NavController) {
             color = Color.Black.copy(alpha = 0.5F)
         )
         TextButton(onClick = {
-            navController.navigate(ReaderAppScreens.LoginScreen.name)
+            navController.popBackStack()
         }) {
             Text(
                 text = "Login",
@@ -100,7 +114,7 @@ fun RegisterWidget(navController: NavController) {
 @Composable
 fun RegisterForm(
     isLoading: Boolean = false,
-    onDone: (String, String, String) -> Unit = { username, email, password -> }
+    onDone: (String, String) -> Unit = { email, password -> }
 ) {
     val username = rememberSaveable() { mutableStateOf("") }
     val email = rememberSaveable() { mutableStateOf("") }
@@ -121,14 +135,9 @@ fun RegisterForm(
         modifier = modifierColum,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        UsernameInput(
-            emailState = username,
-            isEnable = true,
-        )
-
         EmailInput(
             emailState = email,
-            isEnable = true,
+            isEnable = !isLoading,
             onAction = KeyboardActions {
                 passwordFocusRequest.requestFocus()
             }
@@ -139,22 +148,29 @@ fun RegisterForm(
             passwordVisible = showPassword,
             onAction = KeyboardActions {
                 if (!isValidEmailOrPassword) return@KeyboardActions
-                onDone(username.value, email.value, password.value)
+                onDone(email.value, password.value)
             },
         )
         Spacer(modifier = Modifier.height(32.dp))
         Button(
-            onClick = {},
+            onClick = {
+                onDone(email.value, password.value)
+                keyboardController?.hide()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.Black,
+                backgroundColor = AppColors.mDarkBlue,
                 contentColor = Color.White
             ),
             shape = RoundedCornerShape(10.dp),
+            enabled = !isLoading && isValidEmailOrPassword && password.value.length >= 6
         ) {
-            Text(
+            if (isLoading) CircularProgressIndicator(
+                color = Color.White,
+                modifier = Modifier.size(16.dp)
+            ) else Text(
                 text = "Register",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,

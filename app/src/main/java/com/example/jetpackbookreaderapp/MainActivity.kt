@@ -16,6 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.example.jetpackbookreaderapp.navigations.ReaderNavigation
 import com.example.jetpackbookreaderapp.ui.theme.JetpackBookReaderAppTheme
 import com.google.firebase.firestore.FirebaseFirestore
@@ -30,6 +33,14 @@ class MainActivity : ComponentActivity() {
             JetpackBookReaderAppTheme {
                 ReaderApp()
             }
+        }
+
+        // SETTING FOR MANAGE SCROLL SCREEN WHEN KEYBOARD POP UP
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            view.updatePadding(bottom = bottom)
+
+            insets
         }
     }
 }
