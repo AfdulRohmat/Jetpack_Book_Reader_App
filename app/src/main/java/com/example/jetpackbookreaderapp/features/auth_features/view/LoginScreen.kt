@@ -1,16 +1,13 @@
 package com.example.jetpackbookreaderapp.features.login_features.view
 
-import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,23 +15,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.EmailInput
-import com.example.jetpackbookreaderapp.features.auth_features.view.components.InputField
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.PasswordInput
-import com.example.jetpackbookreaderapp.features.register_features.view.RegisterWidget
-import com.example.jetpackbookreaderapp.features.splash_screen_feature.view.SplashScreenWidget
-import com.example.jetpackbookreaderapp.utils.AppColors
+import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
 import com.example.jetpackbookreaderapp.utils.AppFonts
 
 @Composable
@@ -48,14 +38,14 @@ fun LoginScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
-            LoginWidget()
+            LoginWidget(navController = navController)
         }
     }
 
 }
 
 @Composable
-fun LoginWidget() {
+fun LoginWidget(navController: NavController) {
     Text(
         text = "Login",
         fontFamily = AppFonts.poppins,
@@ -83,7 +73,9 @@ fun LoginWidget() {
             fontFamily = AppFonts.poppins,
             color = Color.Black.copy(alpha = 0.5F)
         )
-        TextButton(onClick = {}) {
+        TextButton(onClick = {
+            navController.navigate(ReaderAppScreens.RegisterScreen.name)
+        }) {
             Text(
                 text = "Register",
                 fontWeight = FontWeight.SemiBold,
@@ -125,7 +117,7 @@ fun LoginSection(
     ) {
         EmailInput(
             emailState = email,
-            isEnable = true,
+            isEnable = !isLoading,
             onAction = KeyboardActions {
                 passwordFocusRequest.requestFocus()
             }
@@ -134,6 +126,7 @@ fun LoginSection(
         PasswordInput(
             passwordState = password,
             passwordVisible = showPassword,
+            isEnable = !isLoading,
             onAction = KeyboardActions {
                 if (!isValidEmailOrPassword) return@KeyboardActions
                 onDone(email.value, password.value)
@@ -178,7 +171,8 @@ fun DefaultPreview() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
-            LoginWidget()
+
+//            LoginWidget(navController)
         }
     }
 }

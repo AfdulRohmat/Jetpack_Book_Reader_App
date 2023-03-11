@@ -8,15 +8,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -80,6 +76,27 @@ fun EmailInput(
         imeAction = imeAction,
         onAction = onAction,
         keyboardType = KeyboardType.Email,
+    )
+
+}
+
+@Composable
+fun UsernameInput(
+    modifier: Modifier = Modifier,
+    emailState: MutableState<String>,
+    label: String = "Username",
+    isEnable: Boolean = true,
+    imeAction: ImeAction = ImeAction.Next,
+    onAction: KeyboardActions = KeyboardActions.Default
+) {
+    InputField(
+        modifier = modifier,
+        valueState = emailState,
+        label = label,
+        isEnable = isEnable,
+        imeAction = imeAction,
+        onAction = onAction,
+        keyboardType = KeyboardType.Text,
     )
 
 }
