@@ -6,6 +6,7 @@ import com.example.jetpackbookreaderapp.R
 
 object AppFonts {
     val poppins = FontFamily(
+        Font(R.font.poppins_light),
         Font(R.font.poppins_regular),
         Font(R.font.poppins_medium),
         Font(R.font.poppins_semi_bold),

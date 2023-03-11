@@ -41,10 +41,7 @@ fun ReaderApp() {
             .fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column {
             ReaderNavigation()
         }
 

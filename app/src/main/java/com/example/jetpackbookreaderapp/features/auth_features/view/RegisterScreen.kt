@@ -45,7 +45,7 @@ fun RegisterForm(title: String) {
     Column() {
         Text(
             text = title, fontFamily = AppFonts.poppins,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.Light,
             fontSize = 14.sp
         )
     }
