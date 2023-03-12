@@ -30,20 +30,20 @@ fun SplashScreen(navController: NavController) {
     // DELAY FOR SEVERAL TIME THEN GO TO NEXT PAGE
     LaunchedEffect(key1 = true, block = {
         delay(4000L)
-        navController.navigate(ReaderAppScreens.LoginScreen.name) {
-            popUpTo(ReaderAppScreens.SplashScreen.name) {
-                inclusive = true
-            }
-        }
-//        if (auth.currentUser?.email.isNullOrEmpty()) navController.navigate(ReaderAppScreens.LoginScreen.name) {
-//            popUpTo(ReaderAppScreens.SplashScreen.name) {
-//                inclusive = true
-//            }
-//        } else navController.navigate(ReaderAppScreens.HomeScreen.name) {
+//        navController.navigate(ReaderAppScreens.LoginScreen.name) {
 //            popUpTo(ReaderAppScreens.SplashScreen.name) {
 //                inclusive = true
 //            }
 //        }
+        if (auth.currentUser?.email.isNullOrEmpty()) navController.navigate(ReaderAppScreens.LoginScreen.name) {
+            popUpTo(ReaderAppScreens.SplashScreen.name) {
+                inclusive = true
+            }
+        } else navController.navigate(ReaderAppScreens.HomeScreen.name) {
+            popUpTo(ReaderAppScreens.SplashScreen.name) {
+                inclusive = true
+            }
+        }
     })
 
     Column(

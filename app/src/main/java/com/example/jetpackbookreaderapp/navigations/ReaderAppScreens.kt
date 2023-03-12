@@ -8,7 +8,9 @@ enum class ReaderAppScreens {
     SearchScreen,
     DetailScreen,
     UpdateScreen,
-    ReaderStatsScreen;
+    ReaderStatsScreen,
+    ProfileScreen,
+    ;
 
     companion object {
         fun fromRoute(route: String?): ReaderAppScreens =
@@ -20,6 +22,7 @@ enum class ReaderAppScreens {
                 SearchScreen.name -> SearchScreen
                 DetailScreen.name -> DetailScreen
                 UpdateScreen.name -> UpdateScreen
+                ProfileScreen.name -> ProfileScreen
                 ReaderStatsScreen.name -> ReaderStatsScreen
                 null -> HomeScreen
                 else -> throw java.lang.IllegalArgumentException("Route $route is not defined")

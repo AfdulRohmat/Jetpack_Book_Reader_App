@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.jetpackbookreaderapp.features.auth_features.model.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,9 +38,16 @@ class AuthViewModel : ViewModel() {
                                 val displayName = task.result.user?.email?.split("@")?.get(0)
                                 val userId = task.result.user?.uid
 
-                                val user = mutableMapOf<String, Any>()
-                                user["user_id"] = userId.toString()
-                                user["display_name"] = displayName.toString()
+
+                                val user = UserModel(
+                                    userId = userId.toString(),
+                                    displayName = displayName.toString(),
+                                    avatarUrl = "",
+                                    quote = "live is great",
+                                    profession = "Software developer",
+                                    id = null
+                                ).toMap()
+
 
                                 // ADDING DATA USER TO COLLECTION IN FIREBASE FIRESTORE
                                 firebaseFirestore.collection("users").add(user)
