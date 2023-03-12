@@ -8,6 +8,7 @@ import com.example.jetpackbookreaderapp.features.home_fature.view.HomeScreen
 import com.example.jetpackbookreaderapp.features.login_features.view.LoginScreen
 import com.example.jetpackbookreaderapp.features.profile_feature.view.ProfileScreen
 import com.example.jetpackbookreaderapp.features.register_features.view.RegisterScreen
+import com.example.jetpackbookreaderapp.features.search_feature.view.SearchBookScreen
 import com.example.jetpackbookreaderapp.features.splash_screen_feature.view.SplashScreen
 
 @Composable
@@ -35,6 +36,10 @@ fun ReaderNavigation() {
 
         composable(ReaderAppScreens.ProfileScreen.name) {
             ProfileScreen(navController = navController)
+        }
+
+        composable(ReaderAppScreens.SearchScreen.name) {
+            SearchBookScreen(navController = navController)
         }
 
     }

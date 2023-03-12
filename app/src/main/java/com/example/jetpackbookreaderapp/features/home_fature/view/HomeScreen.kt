@@ -4,31 +4,24 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.jetpackbookreaderapp.R
+import com.example.jetpackbookreaderapp.features.home_fature.view.components.CardBanner
+import com.example.jetpackbookreaderapp.features.home_fature.view.components.CardBookItem
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
@@ -49,8 +42,6 @@ fun HomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.Start
         ) {
             HomeLayout(navController = navController)
-
-
         }
     }
 }
@@ -69,50 +60,75 @@ fun HomeLayout(navController: NavController) {
     )
 
     // SECTION MOTIVATE AND SEARCHING
-    SearchBookSection(searchState = search, onAction = KeyboardActions {
-        // SEARCH FUNCTIONALITY LATER
-    })
+    SearchBookSection(navController = navController)
 
     // BANNER ROW SCROLL
     BannerSection()
 
     // SECTION RECENT READ
+    RecentlyReadingSection()
 
     // SECTION READING LIST
+    ReadingListSection()
 
     // SECTION TRENDING BOOK
 }
 
 @Composable
-fun BannerSection(modifier: Modifier = Modifier) {
-    Spacer(modifier = modifier.height(18.dp))
-    Surface(
-        elevation = 4.dp,
-        modifier = modifier
-            .height(180.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp)
-            .background(color = Color.White),
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.banner_book_1),
-            contentDescription = "banner_1",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+fun ReadingListSection(modifier: Modifier = Modifier) {
+    Spacer(modifier = modifier.height(24.dp))
+    Text(
+        text = "Reading List",
+        fontFamily = AppFonts.poppins,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.Black,
+        overflow = TextOverflow.Ellipsis,
+    )
+    Spacer(modifier = modifier.height(2.dp))
+    Row(Modifier.horizontalScroll(rememberScrollState())) {
+        CardBookItem()
+        CardBookItem()
+        CardBookItem()
     }
 }
 
 @Composable
+fun RecentlyReadingSection(modifier: Modifier = Modifier) {
+    Spacer(modifier = modifier.height(24.dp))
+    Text(
+        text = "Recently Reading",
+        fontFamily = AppFonts.poppins,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.Black,
+        overflow = TextOverflow.Ellipsis,
+    )
+    Spacer(modifier = modifier.height(2.dp))
+    Row(Modifier.horizontalScroll(rememberScrollState())) {
+        CardBookItem()
+        CardBookItem()
+        CardBookItem()
+    }
+}
+
+
+@Composable
+fun BannerSection(modifier: Modifier = Modifier) {
+    Spacer(modifier = modifier.height(24.dp))
+    Row(modifier.horizontalScroll(rememberScrollState())) {
+        CardBanner()
+        CardBanner()
+        CardBanner()
+    }
+}
+
+
+@Composable
 fun SearchBookSection(
     modifier: Modifier = Modifier,
-    searchState: MutableState<String>,
-    imeAction: ImeAction = ImeAction.Done,
-    keyboardType: KeyboardType = KeyboardType.Password,
-    onAction: KeyboardActions = KeyboardActions.Default,
-
-    ) {
+    navController: NavController,
+) {
     Spacer(modifier = modifier.height(16.dp))
     Text(
         text = "Keep exploring",
@@ -131,31 +147,33 @@ fun SearchBookSection(
             .height(64.dp)
             .fillMaxWidth()
             .padding(horizontal = 4.dp)
-            .background(color = Color.White),
+            .background(color = Color.White)
+            .clickable {
+                navController.navigate(ReaderAppScreens.SearchScreen.name)
+            },
         shape = RoundedCornerShape(16.dp),
     ) {
-        OutlinedTextField(
-            value = searchState.value, onValueChange = { searchState.value = it },
-            placeholder = { Text(text = "Search book..") },
-            singleLine = true,
-            textStyle = TextStyle(fontSize = 12.sp, color = Color.Gray),
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
-            keyboardActions = onAction,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "search",
-                    tint = Color.Gray
-                )
-            },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White,
+        Row(
+            modifier = modifier.padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = "search",
+                modifier = modifier.padding(end = 8.dp),
+                tint = Color.Gray
+            )
+            Text(
+                text = "Search book...",
+                fontFamily = AppFonts.poppins,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray,
+                overflow = TextOverflow.Ellipsis,
             )
 
-        )
+        }
     }
 
 }
@@ -227,7 +245,7 @@ fun DefaultPreview() {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-//            HomeLayout(navController)
+//            HomeLayout()
         }
     }
 }
