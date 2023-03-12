@@ -66,16 +66,16 @@ fun HomeLayout(navController: NavController) {
     BannerSection()
 
     // SECTION RECENT READ
-    RecentlyReadingSection()
+    RecentlyReadingSection(navController = navController)
 
     // SECTION READING LIST
-    ReadingListSection()
+    ReadingListSection(navController = navController)
 
     // SECTION TRENDING BOOK
 }
 
 @Composable
-fun ReadingListSection(modifier: Modifier = Modifier) {
+fun ReadingListSection(modifier: Modifier = Modifier, navController: NavController) {
     Spacer(modifier = modifier.height(24.dp))
     Text(
         text = "Reading List",
@@ -87,14 +87,14 @@ fun ReadingListSection(modifier: Modifier = Modifier) {
     )
     Spacer(modifier = modifier.height(2.dp))
     Row(Modifier.horizontalScroll(rememberScrollState())) {
-        CardBookItem()
-        CardBookItem()
-        CardBookItem()
+        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
     }
 }
 
 @Composable
-fun RecentlyReadingSection(modifier: Modifier = Modifier) {
+fun RecentlyReadingSection(modifier: Modifier = Modifier, navController: NavController) {
     Spacer(modifier = modifier.height(24.dp))
     Text(
         text = "Recently Reading",
@@ -106,9 +106,9 @@ fun RecentlyReadingSection(modifier: Modifier = Modifier) {
     )
     Spacer(modifier = modifier.height(2.dp))
     Row(Modifier.horizontalScroll(rememberScrollState())) {
-        CardBookItem()
-        CardBookItem()
-        CardBookItem()
+        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
     }
 }
 
@@ -154,7 +154,7 @@ fun SearchBookSection(
         shape = RoundedCornerShape(16.dp),
     ) {
         Row(
-            modifier = modifier.padding(horizontal = 8.dp),
+            modifier = modifier.padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {

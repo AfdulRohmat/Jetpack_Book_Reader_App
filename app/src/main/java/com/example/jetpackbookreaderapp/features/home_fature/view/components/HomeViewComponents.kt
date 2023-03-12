@@ -2,18 +2,16 @@ package com.example.jetpackbookreaderapp.features.home_fature.view.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -28,13 +26,14 @@ import com.example.jetpackbookreaderapp.utils.AppFonts
 
 
 @Composable
-fun CardBookItem(modifier: Modifier = Modifier) {
+fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
     Column(
         modifier = modifier
             .width(180.dp)
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .clickable { onTap() },
     ) {
-        Surface(
+        Card(
             elevation = 4.dp,
             modifier = modifier
                 .height(240.dp)
@@ -42,15 +41,38 @@ fun CardBookItem(modifier: Modifier = Modifier) {
                 .background(color = Color.White),
             shape = RoundedCornerShape(8.dp),
         ) {
-            // Image book
-            Image(
-                painter = painterResource(id = R.drawable.book_cover),
-                contentDescription = "book_cover",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                // Image book
+                Image(
+                    painter = painterResource(id = R.drawable.book_cover),
+                    contentDescription = "book_cover",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
 
+                )
+
+                // status
+                Text(
+                    text = "Reading",
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .background(color = AppColors.mBlue)
+                        .padding(4.dp),
+                    fontFamily = AppFonts.poppins,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.White,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
+
         Spacer(modifier = modifier.height(4.dp))
 
         // Row title and love
@@ -82,9 +104,31 @@ fun CardBookItem(modifier: Modifier = Modifier) {
                     tint = Color.Red.copy(alpha = 0.9F)
                 )
             }
-
-
         }
+
+        // row rating
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 2.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = "star",
+                modifier = modifier.padding(end = 8.dp),
+                tint = AppColors.mYellow
+            )
+            Text(
+                text = "4.8",
+                fontFamily = AppFonts.poppins,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Gray,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
 
         // author
         Text(
@@ -98,27 +142,6 @@ fun CardBookItem(modifier: Modifier = Modifier) {
             color = Color.Black.copy(alpha = 0.8F),
             overflow = TextOverflow.Ellipsis,
         )
-
-        // status
-        Box(
-            modifier = modifier
-                .height(32.dp)
-                .fillMaxWidth()
-                .background(color = AppColors.mBlue)
-                .clip(shape = RoundedCornerShape(16.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Reading",
-                modifier = modifier.fillMaxWidth(),
-                fontFamily = AppFonts.poppins,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Normal,
-                color = Color.White,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
     }
 
 }
@@ -126,9 +149,11 @@ fun CardBookItem(modifier: Modifier = Modifier) {
 
 @Composable
 fun CardBanner(modifier: Modifier = Modifier) {
-    Column( modifier = modifier
-        .fillMaxWidth()
-        .padding(horizontal = 4.dp),) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+    ) {
         Surface(
             elevation = 4.dp,
             modifier = modifier

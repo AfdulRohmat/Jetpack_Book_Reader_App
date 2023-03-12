@@ -27,7 +27,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.EmailInput
 import com.example.jetpackbookreaderapp.features.auth_features.view.components.PasswordInput
-import com.example.jetpackbookreaderapp.features.auth_features.view.components.UsernameInput
 import com.example.jetpackbookreaderapp.features.auth_features.view_model.AuthViewModel
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
 import com.example.jetpackbookreaderapp.utils.AppColors

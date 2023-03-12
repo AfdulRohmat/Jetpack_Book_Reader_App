@@ -8,4 +8,5 @@ object AppColors {
     val mDarkBlue = Color(0xFF203A61)
     val mBlue = Color(0xFF009DC7)
     val mGray = Color(0xFFD8DADC)
+    val mYellow = Color(0xFFFFC000)
 }

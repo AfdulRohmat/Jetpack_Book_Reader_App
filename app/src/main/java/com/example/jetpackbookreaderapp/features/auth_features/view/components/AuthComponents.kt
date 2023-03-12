@@ -43,8 +43,7 @@ fun InputField(
         textStyle = TextStyle(fontSize = 18.sp, color = MaterialTheme.colors.onBackground),
         modifier = modifier
             .padding(bottom = 10.dp)
-            .fillMaxWidth()
-            .border(width = 2.dp, color = AppColors.mGray),
+            .fillMaxWidth(),
         enabled = isEnable,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         keyboardActions = onAction,
@@ -80,26 +79,6 @@ fun EmailInput(
 
 }
 
-@Composable
-fun UsernameInput(
-    modifier: Modifier = Modifier,
-    emailState: MutableState<String>,
-    label: String = "Username",
-    isEnable: Boolean = true,
-    imeAction: ImeAction = ImeAction.Next,
-    onAction: KeyboardActions = KeyboardActions.Default
-) {
-    InputField(
-        modifier = modifier,
-        valueState = emailState,
-        label = label,
-        isEnable = isEnable,
-        imeAction = imeAction,
-        onAction = onAction,
-        keyboardType = KeyboardType.Text,
-    )
-
-}
 
 @Composable
 fun PasswordInput(
@@ -122,8 +101,7 @@ fun PasswordInput(
         textStyle = TextStyle(fontSize = 18.sp, color = MaterialTheme.colors.onBackground),
         modifier = modifier
             .padding(bottom = 10.dp)
-            .fillMaxWidth()
-            .border(width = 2.dp, color = AppColors.mGray),
+            .fillMaxWidth(),
         enabled = isEnable,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         keyboardActions = onAction,
@@ -147,8 +125,6 @@ fun PasswordInput(
             unfocusedLabelColor = Color.Black,
             placeholderColor = AppColors.mGray
         )
-
-
     )
 
 

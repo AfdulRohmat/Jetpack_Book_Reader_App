@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.jetpackbookreaderapp.features.detail_book_feature.view.DetailBookScreen
 import com.example.jetpackbookreaderapp.features.home_fature.view.HomeScreen
 import com.example.jetpackbookreaderapp.features.login_features.view.LoginScreen
 import com.example.jetpackbookreaderapp.features.profile_feature.view.ProfileScreen
@@ -40,6 +41,10 @@ fun ReaderNavigation() {
 
         composable(ReaderAppScreens.SearchScreen.name) {
             SearchBookScreen(navController = navController)
+        }
+
+        composable(ReaderAppScreens.DetailBookScreen.name) {
+            DetailBookScreen(navController = navController)
         }
 
     }

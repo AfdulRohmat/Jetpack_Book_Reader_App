@@ -6,7 +6,7 @@ enum class ReaderAppScreens {
     LoginScreen,
     RegisterScreen,
     SearchScreen,
-    DetailScreen,
+    DetailBookScreen,
     UpdateScreen,
     ReaderStatsScreen,
     ProfileScreen,
@@ -20,7 +20,7 @@ enum class ReaderAppScreens {
                 LoginScreen.name -> LoginScreen
                 RegisterScreen.name -> RegisterScreen
                 SearchScreen.name -> SearchScreen
-                DetailScreen.name -> DetailScreen
+                DetailBookScreen.name -> DetailBookScreen
                 UpdateScreen.name -> UpdateScreen
                 ProfileScreen.name -> ProfileScreen
                 ReaderStatsScreen.name -> ReaderStatsScreen
