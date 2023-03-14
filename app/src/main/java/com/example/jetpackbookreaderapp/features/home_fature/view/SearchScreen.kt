@@ -1,6 +1,7 @@
 package com.example.jetpackbookreaderapp.features.search_feature.view
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,12 +13,15 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -32,10 +36,15 @@ import com.example.jetpackbookreaderapp.global_components.CustomTopAppBar
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
 
+@OptIn(ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SearchBookScreen(navController: NavController) {
     val search = rememberSaveable() { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val valid = remember(search.value) {
+        search.value.trim().isNotEmpty()
+    }
 
     Scaffold(
         modifier = Modifier
@@ -52,7 +61,19 @@ fun SearchBookScreen(navController: NavController) {
             horizontalAlignment = Alignment.Start
         ) {
             // SEARCH BOOK SECTION
-            SearchBookSection(modifier = Modifier.padding(bottom = 16.dp), searchState = search)
+            SearchBookSection(
+                modifier = Modifier.padding(bottom = 16.dp),
+                searchState = search,
+                onAction = KeyboardActions {
+                    if (!valid) return@KeyboardActions
+                    // doing search functionality
+                    // ...
+
+
+                    Log.d("search", search.value)
+                    search.value = ""
+                    keyboardController?.hide()
+                })
 
             // SEARCH RESULT SECTION
             SearchResultSection()
@@ -155,7 +176,9 @@ fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = "star",
-                        modifier = modifier.padding(end = 8.dp).size(20.dp),
+                        modifier = modifier
+                            .padding(end = 8.dp)
+                            .size(20.dp),
                         tint = AppColors.mYellow
                     )
                     Text(
@@ -192,8 +215,8 @@ fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
 fun SearchBookSection(
     modifier: Modifier = Modifier,
     searchState: MutableState<String>,
-    imeAction: ImeAction = ImeAction.Done,
-    keyboardType: KeyboardType = KeyboardType.Password,
+    imeAction: ImeAction = ImeAction.Search,
+    keyboardType: KeyboardType = KeyboardType.Text,
     onAction: KeyboardActions = KeyboardActions.Default,
 ) {
     // SEARCH BOOK
