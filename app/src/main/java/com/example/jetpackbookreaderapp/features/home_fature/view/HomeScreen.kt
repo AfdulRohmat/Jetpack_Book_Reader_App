@@ -1,5 +1,6 @@
 package com.example.jetpackbookreaderapp.features.home_fature.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -29,9 +30,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(navController: NavController) {
-    Surface(
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
@@ -41,38 +43,35 @@ fun HomeScreen(navController: NavController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            HomeLayout(navController = navController)
+
+            val search = rememberSaveable() { mutableStateOf("") }
+            val auth: FirebaseAuth = Firebase.auth
+
+            // SECTION ACCOUNT AND LOGOUT
+            HeaderSection(
+                displayName = if (auth.currentUser?.email.isNullOrEmpty()) "" else auth.currentUser?.email?.split(
+                    "@"
+                )?.get(0),
+                logout = {}, navController = navController
+            )
+
+            // SECTION MOTIVATE AND SEARCHING
+            SearchBookSection(navController = navController)
+
+            // BANNER ROW SCROLL
+            BannerSection()
+
+            // SECTION RECENT READ
+            RecentlyReadingSection(navController = navController)
+
+            // SECTION READING LIST
+            ReadingListSection(navController = navController)
+
+            // SECTION TRENDING BOOK
         }
     }
 }
 
-@Composable
-fun HomeLayout(navController: NavController) {
-    val search = rememberSaveable() { mutableStateOf("") }
-    val auth: FirebaseAuth = Firebase.auth
-
-    // SECTION ACCOUNT AND LOGOUT
-    HeaderSection(
-        displayName = if (auth.currentUser?.email.isNullOrEmpty()) "" else auth.currentUser?.email?.split(
-            "@"
-        )?.get(0),
-        logout = {}, navController = navController
-    )
-
-    // SECTION MOTIVATE AND SEARCHING
-    SearchBookSection(navController = navController)
-
-    // BANNER ROW SCROLL
-    BannerSection()
-
-    // SECTION RECENT READ
-    RecentlyReadingSection(navController = navController)
-
-    // SECTION READING LIST
-    ReadingListSection(navController = navController)
-
-    // SECTION TRENDING BOOK
-}
 
 @Composable
 fun ReadingListSection(modifier: Modifier = Modifier, navController: NavController) {
@@ -87,9 +86,9 @@ fun ReadingListSection(modifier: Modifier = Modifier, navController: NavControll
     )
     Spacer(modifier = modifier.height(2.dp))
     Row(Modifier.horizontalScroll(rememberScrollState())) {
-        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
     }
 }
 
@@ -106,9 +105,9 @@ fun RecentlyReadingSection(modifier: Modifier = Modifier, navController: NavCont
     )
     Spacer(modifier = modifier.height(2.dp))
     Row(Modifier.horizontalScroll(rememberScrollState())) {
-        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onTap = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
     }
 }
 

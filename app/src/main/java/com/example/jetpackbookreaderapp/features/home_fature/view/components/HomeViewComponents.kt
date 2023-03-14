@@ -9,6 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,18 +22,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberImagePainter
 import com.example.jetpackbookreaderapp.R
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
 
 
 @Composable
-fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
+fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit = {}) {
     Column(
         modifier = modifier
             .width(180.dp)
             .padding(horizontal = 8.dp)
-            .clickable { onTap() },
+            .clickable { onPressDetail("") },
     ) {
         Card(
             elevation = 4.dp,
@@ -48,7 +51,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
             ) {
                 // Image book
                 Image(
-                    painter = painterResource(id = R.drawable.book_cover),
+                    painter = rememberImagePainter(data = "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1461170085i/29966226._SX50_.jpg"), // using coil library to handle image from network
                     contentDescription = "book_cover",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -89,6 +92,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black.copy(alpha = 0.8F),
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             IconButton(
@@ -99,7 +103,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
                     .width(25.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Favorite,
+                    imageVector = Icons.Outlined.FavoriteBorder,
                     contentDescription = "favorite",
                     tint = Color.Red.copy(alpha = 0.9F)
                 )
@@ -111,12 +115,11 @@ fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
                 .fillMaxWidth()
-                .padding(top = 2.dp)
         ) {
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = "star",
-                modifier = modifier.padding(end = 8.dp),
+                modifier = modifier.padding(end = 8.dp).size(20.dp),
                 tint = AppColors.mYellow
             )
             Text(
@@ -129,7 +132,6 @@ fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
             )
         }
 
-
         // author
         Text(
             text = "Jk. Rowling",
@@ -140,6 +142,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onTap: () -> Unit) {
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal,
             color = Color.Black.copy(alpha = 0.8F),
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
     }
@@ -166,7 +169,7 @@ fun CardBanner(modifier: Modifier = Modifier) {
                 painter = painterResource(id = R.drawable.banner_book_1),
                 contentDescription = "banner_1",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
