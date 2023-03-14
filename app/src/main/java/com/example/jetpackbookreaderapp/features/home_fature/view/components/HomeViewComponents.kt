@@ -56,7 +56,6 @@ fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit 
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
-
                 )
 
                 // status
@@ -110,28 +109,6 @@ fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit 
             }
         }
 
-        // row rating
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .fillMaxWidth()
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Star,
-                contentDescription = "star",
-                modifier = modifier.padding(end = 8.dp).size(20.dp),
-                tint = AppColors.mYellow
-            )
-            Text(
-                text = "4.8",
-                fontFamily = AppFonts.poppins,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Gray,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-
         // author
         Text(
             text = "Jk. Rowling",
@@ -145,6 +122,30 @@ fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit 
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
+        
+        // row rating
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = "star",
+                modifier = modifier
+                    .padding(end = 8.dp)
+                    .size(20.dp),
+                tint = AppColors.mYellow
+            )
+            Text(
+                text = "4.8",
+                fontFamily = AppFonts.poppins,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Gray,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.jetpackbookreaderapp.di
 
+import com.example.jetpackbookreaderapp.features.home_fature.repository.HomeRepository
 import com.example.jetpackbookreaderapp.networks.ReaderAppApi
 import com.example.jetpackbookreaderapp.utils.Constans
 import dagger.Module
@@ -15,7 +16,7 @@ import javax.inject.Singleton
 object AppModule {
     // PROVIDE ANYTHING LIKE ROOM DB, DAO, AND RETROFIT
 
-    // Provide Repository API
+    // Provide Retrofit
     @Singleton
     @Provides
     fun provideBookApi(): ReaderAppApi {
@@ -25,7 +26,11 @@ object AppModule {
             .create(ReaderAppApi::class.java)
     }
 
-    // Provide Retrofit
+    // Provide Repository API
+    // provide home repository
+    @Singleton
+    @Provides
+    fun provideHomeRepository(readerAppApi: ReaderAppApi) = HomeRepository(readerAppApi)
 
 
 }

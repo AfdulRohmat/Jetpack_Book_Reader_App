@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,8 +32,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.SearchBookModelItem
+import com.example.jetpackbookreaderapp.features.home_fature.view_model.HomeViewModel
 import com.example.jetpackbookreaderapp.global_components.CustomTopAppBar
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
@@ -39,7 +45,7 @@ import com.example.jetpackbookreaderapp.utils.AppFonts
 @OptIn(ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun SearchBookScreen(navController: NavController) {
+fun SearchBookScreen(navController: NavController, homeViewModel: HomeViewModel = hiltViewModel()) {
     val search = rememberSaveable() { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     val valid = remember(search.value) {
@@ -67,46 +73,62 @@ fun SearchBookScreen(navController: NavController) {
                 onAction = KeyboardActions {
                     if (!valid) return@KeyboardActions
                     // doing search functionality
-                    // ...
+                    homeViewModel.getSearchBook(search.value)
 
 
-                    Log.d("search", search.value)
+//                    Log.d("search", search.value)
                     search.value = ""
                     keyboardController?.hide()
                 })
 
             // SEARCH RESULT SECTION
-            SearchResultSection()
+            SearchResultSection(homeViewModel = homeViewModel)
         }
     }
 }
 
 @Composable
-fun SearchResultSection() {
-    Column(
-        Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 8.dp)
-    ) {
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-        SearchResultCard(onPressDetail = {})
-
+fun SearchResultSection(homeViewModel: HomeViewModel) {
+    if (homeViewModel.searchBookResultsData.value.isLoading == true) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CircularProgressIndicator(color = AppColors.mBlue)
+        }
     }
+
+    // total results
+    if (homeViewModel.searchBookResultsData.value.data?.isNotEmpty() == true) {
+        Text(
+            text = "Results : ${homeViewModel.searchBookResultsData.value.data?.size.toString()}",
+            fontFamily = AppFonts.poppins,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black.copy(alpha = 0.8F),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+
+    LazyColumn(modifier = Modifier.fillMaxSize(), content = {
+        homeViewModel.searchBookResultsData.value.data?.size?.let {
+            items(count = it) {
+                homeViewModel.searchBookResultsData.value.data!!.forEach { searchBookModelItem ->
+                    SearchResultCard(searchBookModelItem = searchBookModelItem, onPressDetail = {})
+                }
+            }
+        }
+    })
 
 }
 
 @Composable
-fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
+fun SearchResultCard(
+    modifier: Modifier = Modifier,
+    searchBookModelItem: SearchBookModelItem,
+    onPressDetail: () -> Unit
+) {
     Card(
         elevation = 4.dp,
         modifier = modifier
@@ -126,7 +148,7 @@ fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
         ) {
             // COVER BOOK
             Image(
-                painter = rememberImagePainter(data = "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1461170085i/29966226._SX50_.jpg"), // using coil library to handle image from network
+                painter = rememberImagePainter(data = searchBookModelItem.cover), // using coil library to handle image from network
                 contentDescription = "book_cover",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -144,9 +166,9 @@ fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
                     .padding(start = 8.dp)
                     .fillMaxSize()
             ) {
-                // name
+                // title
                 Text(
-                    text = "Harry Potter",
+                    text = searchBookModelItem.name.toString(),
                     fontFamily = AppFonts.poppins,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -156,11 +178,37 @@ fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
                 )
                 // author
                 Text(
-                    text = "Jk. Rowling",
+                    text = searchBookModelItem.authors.toString(),
                     modifier = modifier
                         .fillMaxWidth(),
                     fontFamily = AppFonts.poppins,
                     fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Black.copy(alpha = 0.8F),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                // edition
+                Text(
+                    text = "Edition : ${searchBookModelItem.created_editions.toString()}",
+                    modifier = modifier
+                        .fillMaxWidth(),
+                    fontFamily = AppFonts.poppins,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Black.copy(alpha = 0.8F),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                // year
+                Text(
+                    text = "Year : ${searchBookModelItem.year.toString()}",
+                    modifier = modifier
+                        .fillMaxWidth(),
+                    fontFamily = AppFonts.poppins,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.Black.copy(alpha = 0.8F),
                     maxLines = 2,
@@ -182,7 +230,7 @@ fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
                         tint = AppColors.mYellow
                     )
                     Text(
-                        text = "4.8",
+                        text = searchBookModelItem.rating.toString(),
                         fontFamily = AppFonts.poppins,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -191,18 +239,6 @@ fun SearchResultCard(modifier: Modifier = Modifier, onPressDetail: () -> Unit) {
                     )
                 }
 
-                // edition
-                Text(
-                    text = "Edition : 6",
-                    modifier = modifier
-                        .fillMaxWidth(),
-                    fontFamily = AppFonts.poppins,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.Black.copy(alpha = 0.8F),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
 
             }
 
@@ -271,7 +307,7 @@ fun DefaultPreview() {
             horizontalAlignment = Alignment.Start
         ) {
 //            SearchBookLayout(searchState = search)
-            SearchResultCard(onPressDetail = {})
+//            SearchResultCard(onPressDetail = {})
         }
     }
 }
