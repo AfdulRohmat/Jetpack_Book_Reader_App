@@ -10,6 +10,10 @@ android {
     namespace 'com.example.jetpackbookreaderapp'
     compileSdk 33
 
+    buildFeatures {
+        compose = true
+    }
+
     defaultConfig {
         applicationId "com.example.jetpackbookreaderapp"
         minSdk 24
@@ -84,6 +88,10 @@ dependencies {
 
     // GSON Converter
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // COMPOSE MATERIAL 3
+    implementation 'androidx.compose.material3:material3:1.0.1'
+    implementation 'androidx.compose.material3:material3-window-size-class:1.0.1'
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0'
