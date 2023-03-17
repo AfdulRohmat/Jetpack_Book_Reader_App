@@ -25,6 +25,6 @@ interface ReaderAppApi {
         "X-RapidAPI-Key: ${Constans.API_KEY}",
         "X-RapidAPI-Host: ${Constans.API_HOST}"
     )
-    @GET("book/{bookId}")
-    suspend fun getDetailBook(@Path("bookId") bookId: String): DetailBookModel
+    @GET("book/{book_Id}")
+    suspend fun getDetailBook(@Path("book_Id") book_Id: String): DetailBookModel
 }

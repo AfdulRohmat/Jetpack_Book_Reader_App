@@ -39,6 +39,7 @@ import coil.compose.rememberImagePainter
 import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.SearchBookModelItem
 import com.example.jetpackbookreaderapp.features.home_fature.view_model.HomeViewModel
 import com.example.jetpackbookreaderapp.global_components.CustomTopAppBar
+import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
 
@@ -75,21 +76,20 @@ fun SearchBookScreen(navController: NavController, homeViewModel: HomeViewModel 
                     // doing search functionality
                     homeViewModel.getSearchBook(search.value)
 
-
-//                    Log.d("search", search.value)
-                    search.value = ""
+                    // Log.d("search", search.value)
                     keyboardController?.hide()
+                    search.value = ""
                 })
 
             // SEARCH RESULT SECTION
-            SearchResultSection(homeViewModel = homeViewModel)
+            SearchResultSection(homeViewModel = homeViewModel, navController = navController)
         }
     }
 }
 
 @Composable
-fun SearchResultSection(homeViewModel: HomeViewModel) {
-    if (homeViewModel.searchBookResultsData.value.isLoading == true) {
+fun SearchResultSection(homeViewModel: HomeViewModel, navController: NavController) {
+    if (homeViewModel.isLoading) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
@@ -99,9 +99,9 @@ fun SearchResultSection(homeViewModel: HomeViewModel) {
     }
 
     // total results
-    if (homeViewModel.searchBookResultsData.value.data?.isNotEmpty() == true) {
+    if (homeViewModel.searchBookResult.isNotEmpty()) {
         Text(
-            text = "Results : ${homeViewModel.searchBookResultsData.value.data?.size.toString()}",
+            text = "Results : ${homeViewModel.searchBookResult.size.toString()}",
             fontFamily = AppFonts.poppins,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
@@ -112,12 +112,10 @@ fun SearchResultSection(homeViewModel: HomeViewModel) {
     }
 
     LazyColumn(modifier = Modifier.fillMaxSize(), content = {
-        homeViewModel.searchBookResultsData.value.data?.size?.let {
-            items(count = it) {
-                homeViewModel.searchBookResultsData.value.data!!.forEach { searchBookModelItem ->
-                    SearchResultCard(searchBookModelItem = searchBookModelItem, onPressDetail = {})
-                }
-            }
+        items(items = homeViewModel.searchBookResult) { searchBookModelItem ->
+            SearchResultCard(searchBookModelItem = searchBookModelItem, onPressDetail = {
+                navController.navigate(ReaderAppScreens.DetailBookScreen.name + "/${searchBookModelItem.book_id}")
+            })
         }
     })
 
@@ -132,7 +130,7 @@ fun SearchResultCard(
     Card(
         elevation = 4.dp,
         modifier = modifier
-            .height(160.dp)
+            .height(200.dp)
             .fillMaxWidth()
             .background(color = Color.White)
             .padding(vertical = 6.dp)
