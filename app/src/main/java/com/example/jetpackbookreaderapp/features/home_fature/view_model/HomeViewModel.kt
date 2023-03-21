@@ -2,14 +2,13 @@ package com.example.jetpackbookreaderapp.features.home_fature.view_model
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jetpackbookreaderapp.data.DataOrException
 import com.example.jetpackbookreaderapp.data.Resource
+import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.Item
 import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.SearchBookModel
 import com.example.jetpackbookreaderapp.features.home_fature.repository.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +19,7 @@ import javax.inject.Inject
 @SuppressLint("MutableCollectionMutableState")
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val homeRepository: HomeRepository) : ViewModel() {
-    var searchBookResult: SearchBookModel by mutableStateOf(SearchBookModel())
+    var searchBookResult: List<Item> by mutableStateOf(listOf())
     var isLoading: Boolean by mutableStateOf(false)
 
 
@@ -37,7 +36,7 @@ class HomeViewModel @Inject constructor(private val homeRepository: HomeReposito
                 when (val response = homeRepository.getSearchBook(searchQuery)) {
                     is Resource.Success -> {
 
-                        searchBookResult = response.data!!
+                        searchBookResult = response.data!!.items
                         if (searchBookResult.isNotEmpty()) isLoading = false
                     }
                     is Resource.Error -> {

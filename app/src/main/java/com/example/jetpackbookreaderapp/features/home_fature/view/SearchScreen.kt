@@ -1,7 +1,6 @@
 package com.example.jetpackbookreaderapp.features.search_feature.view
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,10 +32,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
-import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.SearchBookModelItem
+import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.Item
 import com.example.jetpackbookreaderapp.features.home_fature.view_model.HomeViewModel
 import com.example.jetpackbookreaderapp.global_components.CustomTopAppBar
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
@@ -112,9 +110,9 @@ fun SearchResultSection(homeViewModel: HomeViewModel, navController: NavControll
     }
 
     LazyColumn(modifier = Modifier.fillMaxSize(), content = {
-        items(items = homeViewModel.searchBookResult) { searchBookModelItem ->
-            SearchResultCard(searchBookModelItem = searchBookModelItem, onPressDetail = {
-                navController.navigate(ReaderAppScreens.DetailBookScreen.name + "/${searchBookModelItem.book_id}")
+        items(items = homeViewModel.searchBookResult) { item ->
+            SearchResultCard(searchBookModelItem = item, onPressDetail = {
+                navController.navigate(ReaderAppScreens.DetailBookScreen.name + "/${item.id}")
             })
         }
     })
@@ -124,7 +122,7 @@ fun SearchResultSection(homeViewModel: HomeViewModel, navController: NavControll
 @Composable
 fun SearchResultCard(
     modifier: Modifier = Modifier,
-    searchBookModelItem: SearchBookModelItem,
+    searchBookModelItem: Item,
     onPressDetail: () -> Unit
 ) {
     Card(
@@ -146,7 +144,7 @@ fun SearchResultCard(
         ) {
             // COVER BOOK
             Image(
-                painter = rememberImagePainter(data = searchBookModelItem.cover), // using coil library to handle image from network
+                painter = rememberImagePainter(data = searchBookModelItem.volumeInfo.imageLinks.thumbnail), // using coil library to handle image from network
                 contentDescription = "book_cover",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -166,7 +164,7 @@ fun SearchResultCard(
             ) {
                 // title
                 Text(
-                    text = searchBookModelItem.name.toString(),
+                    text = searchBookModelItem.volumeInfo.title.toString(),
                     fontFamily = AppFonts.poppins,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -176,7 +174,7 @@ fun SearchResultCard(
                 )
                 // author
                 Text(
-                    text = searchBookModelItem.authors.toString(),
+                    text =  "${searchBookModelItem.volumeInfo.authors ?: "No Data"}",
                     modifier = modifier
                         .fillMaxWidth(),
                     fontFamily = AppFonts.poppins,
@@ -187,9 +185,9 @@ fun SearchResultCard(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                // edition
+                // publisher
                 Text(
-                    text = "Edition : ${searchBookModelItem.created_editions.toString()}",
+                    text = searchBookModelItem.volumeInfo.publisher ?: "No Data",
                     modifier = modifier
                         .fillMaxWidth(),
                     fontFamily = AppFonts.poppins,
@@ -202,7 +200,7 @@ fun SearchResultCard(
 
                 // year
                 Text(
-                    text = "Year : ${searchBookModelItem.year.toString()}",
+                    text = "Published Date : ${searchBookModelItem.volumeInfo.publishedDate.toString()}",
                     modifier = modifier
                         .fillMaxWidth(),
                     fontFamily = AppFonts.poppins,
@@ -228,7 +226,7 @@ fun SearchResultCard(
                         tint = AppColors.mYellow
                     )
                     Text(
-                        text = searchBookModelItem.rating.toString(),
+                        text = "${searchBookModelItem.volumeInfo.averageRating ?: "No Data"}",
                         fontFamily = AppFonts.poppins,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -267,7 +265,7 @@ fun SearchBookSection(
             value = searchState.value, onValueChange = { searchState.value = it },
             placeholder = { Text(text = "Search book..") },
             singleLine = true,
-            textStyle = TextStyle(fontSize = 12.sp, color = Color.Gray),
+            textStyle = TextStyle(fontSize = 16.sp, color = Color.Gray),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
             keyboardActions = onAction,
             leadingIcon = {

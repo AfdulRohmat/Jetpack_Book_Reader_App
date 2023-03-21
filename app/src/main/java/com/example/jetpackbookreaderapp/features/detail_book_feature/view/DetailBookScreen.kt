@@ -1,7 +1,6 @@
 package com.example.jetpackbookreaderapp.features.detail_book_feature.view
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,7 +26,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.jetpackbookreaderapp.data.Resource
 import com.example.jetpackbookreaderapp.features.detail_book_feature.view_model.DetailBookViewModel
-import com.example.jetpackbookreaderapp.features.home_fature.model.detail_book_model.DetailBookModel
+import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.Item
 import com.example.jetpackbookreaderapp.global_components.CustomTopAppBar
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
@@ -47,28 +46,6 @@ fun DetailBookScreen(
                 navController.popBackStack()
             })
         },
-        bottomBar = {
-            BottomAppBar(
-                backgroundColor = AppColors.mBlue,
-                elevation = 2.dp,
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = {}) {
-                        Text(
-                            text = "Add to Reading List",
-                            fontFamily = AppFonts.poppins,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-        }
     ) {
         Column(
             modifier = Modifier
@@ -79,7 +56,7 @@ fun DetailBookScreen(
         ) {
 
             // CALL DETAIL BOOK VIEW MODEL
-            val detailBookResult = produceState<Resource<DetailBookModel>>(
+            val detailBookResult = produceState<Resource<Item>>(
                 initialValue = Resource.Loading(),
                 producer = {
                     value = detailBookViewModel.getDetailBook(bookId)
@@ -88,13 +65,13 @@ fun DetailBookScreen(
             if (detailBookResult.data == null) {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 32.dp)
                 ) {
                     CircularProgressIndicator(color = AppColors.mBlue)
                 }
             } else {
-                Text(text = "book id : $bookId")
-
                 // IMAGE BOOK SECTION
                 ImageBookSection(modifier = Modifier, detailBookData = detailBookResult)
 
@@ -109,6 +86,19 @@ fun DetailBookScreen(
 
                 // SYNOPSIS SECTION
                 SynopsisSection(modifier = Modifier, detailBookData = detailBookResult)
+
+                // BUTTON ADD TO READING LIST
+                Button(onClick = {}, modifier = Modifier
+                    .height(60.dp).fillMaxWidth()
+                    .padding(vertical = 4.dp)) {
+                    Text(
+                        text = "Add to Reading List",
+                        fontFamily = AppFonts.poppins,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
@@ -118,7 +108,7 @@ fun DetailBookScreen(
 fun GetMoreInfoSection(
     modifier: Modifier,
     onGetMoreInfo: () -> Unit,
-    detailBookData: Resource<DetailBookModel>
+    detailBookData: Resource<Item>
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -140,14 +130,14 @@ fun GetMoreInfoSection(
 }
 
 @Composable
-fun SynopsisSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>) {
+fun SynopsisSection(modifier: Modifier, detailBookData: Resource<Item>) {
     Column(
-        modifier = Modifier.padding(top = 14.dp, bottom = 80.dp),
+        modifier = Modifier.padding(top = 14.dp, bottom = 30.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = detailBookData.data?.synopsis.toString(),
+            text = detailBookData?.data?.volumeInfo?.description?.toString() ?: "No Description Available",
             fontFamily = AppFonts.poppins,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
@@ -161,7 +151,7 @@ fun SynopsisSection(modifier: Modifier, detailBookData: Resource<DetailBookModel
 }
 
 @Composable
-fun DetailSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>) {
+fun DetailSection(modifier: Modifier, detailBookData: Resource<Item>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -184,7 +174,7 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>)
                 tint = AppColors.mYellow
             )
             Text(
-                text = detailBookData.data?.rating.toString(),
+                text = "${detailBookData.data?.volumeInfo?.averageRating ?: "No Data"}",
                 fontFamily = AppFonts.poppins,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -195,7 +185,7 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>)
 
         // title
         Text(
-            text = detailBookData.data?.name.toString(),
+            text = detailBookData.data?.volumeInfo?.title.toString(),
             fontFamily = AppFonts.poppins,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
@@ -211,9 +201,9 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>)
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            detailBookData.data?.authors?.size?.let {
-                items(it) {
-                    detailBookData.data.authors.forEach { author ->
+            detailBookData.data?.volumeInfo?.authors?.size.let {
+                items(it!!) {
+                    detailBookData.data?.volumeInfo?.authors?.forEach { author ->
                         Text(
                             text = author,
                             fontFamily = AppFonts.poppins,
@@ -244,7 +234,7 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>)
             ) {
                 // year
                 Text(
-                    text = detailBookData.data?.published_date.toString(),
+                    text = detailBookData.data?.volumeInfo?.publishedDate.toString(),
                     fontFamily = AppFonts.poppins,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -273,7 +263,7 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>)
             ) {
                 // year
                 Text(
-                    text = detailBookData.data?.pages.toString(),
+                    text = detailBookData.data?.volumeInfo?.pageCount.toString(),
                     fontFamily = AppFonts.poppins,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -298,7 +288,7 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>)
 }
 
 @Composable
-fun ImageBookSection(modifier: Modifier, detailBookData: Resource<DetailBookModel>) {
+fun ImageBookSection(modifier: Modifier, detailBookData: Resource<Item>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -309,7 +299,7 @@ fun ImageBookSection(modifier: Modifier, detailBookData: Resource<DetailBookMode
     ) {
         Card(modifier = modifier.padding(vertical = 18.dp), elevation = 4.dp) {
             Image(
-                painter = rememberImagePainter(data = detailBookData.data?.cover), // using coil library to handle image from network
+                painter = rememberImagePainter(data = detailBookData.data?.volumeInfo?.imageLinks?.thumbnail), // using coil library to handle image from network
                 contentDescription = "book_cover",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
