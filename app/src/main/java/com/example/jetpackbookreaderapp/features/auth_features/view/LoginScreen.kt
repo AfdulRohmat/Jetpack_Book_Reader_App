@@ -70,6 +70,7 @@ fun LoginWidget(navController: NavController, authViewModel: AuthViewModel) {
     )
     Spacer(modifier = Modifier.height(40.dp))
     LoginSection(isLoading = false,
+        authViewModel = authViewModel,
         onDone = { email, password ->
             authViewModel.login(email, password, context = mContext, navigate = {
                 navController.navigate(ReaderAppScreens.HomeScreen.name)
@@ -110,6 +111,7 @@ fun LoginWidget(navController: NavController, authViewModel: AuthViewModel) {
 @Composable
 fun LoginSection(
     isLoading: Boolean = false,
+    authViewModel: AuthViewModel,
     onDone: (String, String) -> Unit = { email, password -> }
 ) {
     // USING rememberSaveable() to save state even the screen get rotate
@@ -162,9 +164,9 @@ fun LoginSection(
                 contentColor = Color.White
             ),
             shape = RoundedCornerShape(10.dp),
-            enabled = !isLoading && isValidEmailOrPassword
+            enabled = !isLoading && isValidEmailOrPassword || !authViewModel.loading.value
         ) {
-            if (isLoading) CircularProgressIndicator(
+            if (isLoading || authViewModel.loading.value) CircularProgressIndicator(
                 color = Color.White,
                 modifier = Modifier.size(16.dp)
             ) else Text(

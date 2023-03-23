@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,11 +26,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.jetpackbookreaderapp.data.Resource
+import com.example.jetpackbookreaderapp.features.detail_book_feature.model.BookModel
 import com.example.jetpackbookreaderapp.features.detail_book_feature.view_model.DetailBookViewModel
 import com.example.jetpackbookreaderapp.features.home_fature.model.search_book_model.Item
 import com.example.jetpackbookreaderapp.global_components.CustomTopAppBar
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
+import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "ProduceStateDoesNotAssignValue")
 @Composable
@@ -39,8 +42,7 @@ fun DetailBookScreen(
     detailBookViewModel: DetailBookViewModel = hiltViewModel()
 ) {
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             CustomTopAppBar(title = "Search Book", onNavigationIcon = {
                 navController.popBackStack()
@@ -56,11 +58,12 @@ fun DetailBookScreen(
         ) {
 
             // CALL DETAIL BOOK VIEW MODEL
-            val detailBookResult = produceState<Resource<Item>>(
-                initialValue = Resource.Loading(),
-                producer = {
+            val detailBookResult =
+                produceState<Resource<Item>>(initialValue = Resource.Loading(), producer = {
                     value = detailBookViewModel.getDetailBook(bookId)
                 }).value
+
+            val mContext = LocalContext.current
 
             if (detailBookResult.data == null) {
                 Box(
@@ -76,8 +79,7 @@ fun DetailBookScreen(
                 ImageBookSection(modifier = Modifier, detailBookData = detailBookResult)
 
                 // BUTTON GET MORE INFO
-                GetMoreInfoSection(
-                    modifier = Modifier,
+                GetMoreInfoSection(modifier = Modifier,
                     detailBookData = detailBookResult,
                     onGetMoreInfo = {})
 
@@ -88,15 +90,47 @@ fun DetailBookScreen(
                 SynopsisSection(modifier = Modifier, detailBookData = detailBookResult)
 
                 // BUTTON ADD TO READING LIST
-                Button(onClick = {}, modifier = Modifier
-                    .height(60.dp).fillMaxWidth()
-                    .padding(vertical = 4.dp)) {
-                    Text(
+                Button(
+                    enabled = !detailBookViewModel.loading.value,
+                    onClick = {
+                        val bookData = detailBookResult.data.volumeInfo
+                        val book = BookModel(
+                            title = bookData.title,
+                            authors = bookData.authors.toString(),
+                            description = bookData.description.toString(),
+                            categories = if (bookData.categories.isNullOrEmpty()) "-" else bookData.categories.toString(),
+                            notes = "",
+                            photoUrl = bookData.imageLinks.thumbnail,
+                            publishedDate = bookData.publishedDate,
+                            pageCount = bookData.pageCount.toString(),
+                            rating = 0.0,
+                            googleBookId = detailBookResult.data.id,
+                            userId = FirebaseAuth.getInstance().currentUser?.uid.toString(),
+                        )
+
+                        // ADD TO FIREBASE
+                        detailBookViewModel.addBookToFirebase(
+                            book,
+                            context = mContext,
+                            navController = navController
+                        )
+                    },
+                    modifier = Modifier
+                        .height(64.dp)
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 12.dp)
+                ) {
+                    if (!detailBookViewModel.loading.value) Text(
                         text = "Add to Reading List",
                         fontFamily = AppFonts.poppins,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White
+                    ) else CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(2.dp),
+                        color = Color.Gray
                     )
                 }
             }
@@ -106,15 +140,12 @@ fun DetailBookScreen(
 
 @Composable
 fun GetMoreInfoSection(
-    modifier: Modifier,
-    onGetMoreInfo: () -> Unit,
-    detailBookData: Resource<Item>
+    modifier: Modifier, onGetMoreInfo: () -> Unit, detailBookData: Resource<Item>
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         TextButton(onClick = { onGetMoreInfo() }) {
             Text(
@@ -137,7 +168,8 @@ fun SynopsisSection(modifier: Modifier, detailBookData: Resource<Item>) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = detailBookData?.data?.volumeInfo?.description?.toString() ?: "No Description Available",
+            text = detailBookData?.data?.volumeInfo?.description?.toString()
+                ?: "No Description Available",
             fontFamily = AppFonts.poppins,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
@@ -155,15 +187,13 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<Item>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         // Rating
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = modifier
-                .fillMaxWidth()
+            modifier = modifier.fillMaxWidth()
         ) {
             Icon(
                 imageVector = Icons.Filled.Star,
@@ -195,26 +225,38 @@ fun DetailSection(modifier: Modifier, detailBookData: Resource<Item>) {
         )
 
         // author
-        LazyRow(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = modifier
-                .fillMaxWidth()
-        ) {
-            detailBookData.data?.volumeInfo?.authors?.size.let {
-                items(it!!) {
-                    detailBookData.data?.volumeInfo?.authors?.forEach { author ->
-                        Text(
-                            text = author,
-                            fontFamily = AppFonts.poppins,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.Black.copy(alpha = 0.8F),
-                        )
+        if (detailBookData.data?.volumeInfo?.authors?.isNotEmpty() == true) {
+            LazyRow(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = modifier.fillMaxWidth()
+            ) {
+                detailBookData.data?.volumeInfo?.authors?.size.let {
+                    items(it!!) {
+                        detailBookData.data?.volumeInfo?.authors?.forEach { author ->
+                            Text(
+                                text = author,
+                                fontFamily = AppFonts.poppins,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.Black.copy(alpha = 0.8F),
+                            )
+                        }
                     }
                 }
+
             }
+        } else {
+            Text(
+                text = " - ",
+                fontFamily = AppFonts.poppins,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Black.copy(alpha = 0.8F),
+                textAlign = TextAlign.Center
+            )
         }
+
 
         // row other desc
         Row(
@@ -318,37 +360,31 @@ fun ImageBookSection(modifier: Modifier, detailBookData: Resource<Item>) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
-        topBar = {
-            CustomTopAppBar(title = "Search Book", onNavigationIcon = {
-            })
-        },
-        bottomBar = {
-            BottomAppBar(
-                backgroundColor = AppColors.mBlue,
-                elevation = 2.dp,
+    Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+        CustomTopAppBar(title = "Search Book", onNavigationIcon = {})
+    }, bottomBar = {
+        BottomAppBar(
+            backgroundColor = AppColors.mBlue,
+            elevation = 2.dp,
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = {}) {
-                        Text(
-                            text = "Add to Reading List",
-                            fontFamily = AppFonts.poppins,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
-                    }
-
+                TextButton(onClick = {}) {
+                    Text(
+                        text = "Add to Reading List",
+                        fontFamily = AppFonts.poppins,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
                 }
+
             }
         }
-    ) {
+    }) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)

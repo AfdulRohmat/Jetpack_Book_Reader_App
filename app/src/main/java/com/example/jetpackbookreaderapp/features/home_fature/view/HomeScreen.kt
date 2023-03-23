@@ -15,12 +15,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.jetpackbookreaderapp.features.auth_features.view_model.AuthViewModel
 import com.example.jetpackbookreaderapp.features.home_fature.view.components.CardBanner
 import com.example.jetpackbookreaderapp.features.home_fature.view.components.CardBookItem
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
@@ -32,7 +35,9 @@ import com.google.firebase.ktx.Firebase
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
+    val mContext = LocalContext.current
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +57,9 @@ fun HomeScreen(navController: NavController) {
                 displayName = if (auth.currentUser?.email.isNullOrEmpty()) "" else auth.currentUser?.email?.split(
                     "@"
                 )?.get(0),
-                logout = {}, navController = navController
+                logout = {
+                    authViewModel.logout(context = mContext, navController)
+                }, navController = navController
             )
 
             // SECTION MOTIVATE AND SEARCHING

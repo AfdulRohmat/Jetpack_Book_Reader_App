@@ -1,6 +1,5 @@
 package com.example.jetpackbookreaderapp.features.register_features.view
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -72,6 +71,7 @@ fun RegisterWidget(navController: NavController, authViewModel: AuthViewModel) {
     // REGISTER FORM
     RegisterForm(
         isLoading = false,
+        authViewModel = authViewModel,
         onDone = { email, password ->
             authViewModel.register(email, password, context = mContext, navigate = {
                 navController.navigate(ReaderAppScreens.HomeScreen.name)
@@ -113,7 +113,8 @@ fun RegisterWidget(navController: NavController, authViewModel: AuthViewModel) {
 @Composable
 fun RegisterForm(
     isLoading: Boolean = false,
-    onDone: (String, String) -> Unit = { email, password -> }
+    onDone: (String, String) -> Unit = { email, password -> },
+    authViewModel: AuthViewModel
 ) {
     val username = rememberSaveable() { mutableStateOf("") }
     val email = rememberSaveable() { mutableStateOf("") }
@@ -164,9 +165,9 @@ fun RegisterForm(
                 contentColor = Color.White
             ),
             shape = RoundedCornerShape(10.dp),
-            enabled = !isLoading && isValidEmailOrPassword && password.value.length >= 6
+            enabled = !isLoading && isValidEmailOrPassword && password.value.length >= 6 || !authViewModel.loading.value
         ) {
-            if (isLoading) CircularProgressIndicator(
+            if (isLoading || authViewModel.loading.value) CircularProgressIndicator(
                 color = Color.White,
                 modifier = Modifier.size(16.dp)
             ) else Text(
