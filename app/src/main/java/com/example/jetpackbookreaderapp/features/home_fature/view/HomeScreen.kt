@@ -1,8 +1,11 @@
 package com.example.jetpackbookreaderapp.features.home_fature.view
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -10,7 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,22 +26,46 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackbookreaderapp.features.auth_features.view_model.AuthViewModel
+import com.example.jetpackbookreaderapp.features.detail_book_feature.model.BookModel
 import com.example.jetpackbookreaderapp.features.home_fature.view.components.CardBanner
 import com.example.jetpackbookreaderapp.features.home_fature.view.components.CardBookItem
+import com.example.jetpackbookreaderapp.features.home_fature.view_model.HomeViewModel
 import com.example.jetpackbookreaderapp.navigations.ReaderAppScreens
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
     val mContext = LocalContext.current
+    var booksFromFirestore = listOf<BookModel>()
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    var openDialog = remember { mutableStateOf(false) }
+
+    // call once when the view appears
+    LaunchedEffect(Unit, block = {
+        homeViewModel.getAllBooksFromFirestore()
+    })
+
+    if (!homeViewModel.booksFromFirestoreData.value.data.isNullOrEmpty()) {
+        booksFromFirestore =
+            homeViewModel.booksFromFirestoreData.value.data!!.toList().filter { book ->
+                book.userId == currentUser?.uid.toString()
+            }
+        Log.d("Books", booksFromFirestore.toString())
+    }
 
     Scaffold(
         modifier = Modifier
@@ -58,9 +87,64 @@ fun HomeScreen(navController: NavController, authViewModel: AuthViewModel = view
                     "@"
                 )?.get(0),
                 logout = {
-                    authViewModel.logout(context = mContext, navController)
+                    openDialog.value = true
                 }, navController = navController
             )
+
+            // OPEN / CLOSE ALERT DIALOG
+            if (openDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { openDialog.value = false },
+                    buttons = {
+
+                        Row(
+                            modifier = Modifier
+                                .padding(all = 8.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Button(
+                                modifier = Modifier.width(60.dp),
+                                onClick = { openDialog.value = false }
+                            ) {
+                                Text("No")
+                            }
+                            Button(
+                                modifier = Modifier.width(60.dp),
+                                onClick = {
+                                    openDialog.value = false
+                                    authViewModel.logout(
+                                        context = mContext,
+                                        navController
+                                    )
+                                }
+                            ) {
+                                Text("Yes")
+                            }
+                        }
+                    },
+                    title = {
+                        Text(
+                            text = "Logout",
+                            fontFamily = AppFonts.poppins,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Black,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "Are you sure want to logout ?",
+                            fontFamily = AppFonts.poppins,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Black,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                )
+            }
 
             // SECTION MOTIVATE AND SEARCHING
             SearchBookSection(navController = navController)
@@ -69,10 +153,10 @@ fun HomeScreen(navController: NavController, authViewModel: AuthViewModel = view
             BannerSection()
 
             // SECTION RECENT READ
-            RecentlyReadingSection(navController = navController)
+            RecentlyReadingSection(navController = navController, booksData = booksFromFirestore)
 
             // SECTION READING LIST
-            ReadingListSection(navController = navController)
+            ReadingListSection(navController = navController, booksData = booksFromFirestore)
 
             // SECTION TRENDING BOOK
         }
@@ -81,7 +165,11 @@ fun HomeScreen(navController: NavController, authViewModel: AuthViewModel = view
 
 
 @Composable
-fun ReadingListSection(modifier: Modifier = Modifier, navController: NavController) {
+fun ReadingListSection(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    booksData: List<BookModel>
+) {
     Spacer(modifier = modifier.height(24.dp))
     Text(
         text = "Reading List",
@@ -92,15 +180,23 @@ fun ReadingListSection(modifier: Modifier = Modifier, navController: NavControll
         overflow = TextOverflow.Ellipsis,
     )
     Spacer(modifier = modifier.height(2.dp))
-    Row(Modifier.horizontalScroll(rememberScrollState())) {
-        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+    LazyRow {
+        items(booksData) { book ->
+            CardBookItem(
+                bookItem = book,
+                onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+
+        }
     }
+
 }
 
 @Composable
-fun RecentlyReadingSection(modifier: Modifier = Modifier, navController: NavController) {
+fun RecentlyReadingSection(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    booksData: List<BookModel>
+) {
     Spacer(modifier = modifier.height(24.dp))
     Text(
         text = "Recently Reading",
@@ -111,10 +207,13 @@ fun RecentlyReadingSection(modifier: Modifier = Modifier, navController: NavCont
         overflow = TextOverflow.Ellipsis,
     )
     Spacer(modifier = modifier.height(2.dp))
-    Row(Modifier.horizontalScroll(rememberScrollState())) {
-        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
-        CardBookItem(onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+    LazyRow {
+        items(booksData) { book ->
+            CardBookItem(
+                bookItem = book,
+                onPressDetail = { navController.navigate(ReaderAppScreens.DetailBookScreen.name) })
+
+        }
     }
 }
 

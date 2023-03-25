@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,12 +22,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.jetpackbookreaderapp.R
+import com.example.jetpackbookreaderapp.features.detail_book_feature.model.BookModel
 import com.example.jetpackbookreaderapp.utils.AppColors
 import com.example.jetpackbookreaderapp.utils.AppFonts
 
 
 @Composable
-fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit = {}) {
+fun CardBookItem(
+    modifier: Modifier = Modifier,
+    onPressDetail: (String) -> Unit = {},
+    bookItem: BookModel
+) {
     Column(
         modifier = modifier
             .width(180.dp)
@@ -51,7 +54,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit 
             ) {
                 // Image book
                 Image(
-                    painter = rememberImagePainter(data = "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1461170085i/29966226._SX50_.jpg"), // using coil library to handle image from network
+                    painter = rememberImagePainter(data = bookItem.photoUrl), // using coil library to handle image from network
                     contentDescription = "book_cover",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -86,7 +89,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit 
                 .padding(top = 4.dp)
         ) {
             Text(
-                text = "Harry Potter",
+                text = bookItem.title.toString(),
                 fontFamily = AppFonts.poppins,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
@@ -111,7 +114,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit 
 
         // author
         Text(
-            text = "Jk. Rowling",
+            text = bookItem.authors.toString(),
             modifier = modifier
                 .fillMaxWidth()
                 .padding(bottom = 2.dp),
@@ -138,7 +141,7 @@ fun CardBookItem(modifier: Modifier = Modifier, onPressDetail: (String) -> Unit 
                 tint = AppColors.mYellow
             )
             Text(
-                text = "4.8",
+                text = bookItem.rating.toString(),
                 fontFamily = AppFonts.poppins,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,

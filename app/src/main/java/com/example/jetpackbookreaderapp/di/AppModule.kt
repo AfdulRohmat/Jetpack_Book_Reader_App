@@ -1,8 +1,10 @@
 package com.example.jetpackbookreaderapp.di
 
+import com.example.jetpackbookreaderapp.features.home_fature.repository.FirestoreBookRepository
 import com.example.jetpackbookreaderapp.features.home_fature.repository.HomeRepository
 import com.example.jetpackbookreaderapp.networks.ReaderAppApi
 import com.example.jetpackbookreaderapp.utils.Constans
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,6 +33,12 @@ object AppModule {
     @Singleton
     @Provides
     fun provideHomeRepository(readerAppApi: ReaderAppApi) = HomeRepository(readerAppApi)
+
+    // Provide Firestore Repository
+    @Singleton
+    @Provides
+    fun provideFirestoreBookRepository() =
+        FirestoreBookRepository(bookQuery = FirebaseFirestore.getInstance().collection("books"))
 
 
 }
